@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Studio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --green:#075b47;
+  --gold:#c7a354;
+  --bg:#f1f4f2;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:#202923;
+  font-family:'Hind Siliguri',sans-serif;
+}
+header{
+  background:linear-gradient(120deg,#063b2e,#087f5b);
+  color:white;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.brand{font-size:21px;font-weight:700}
+.brand small{display:block;font-size:12px;font-weight:400;opacity:.8}
+button,select,input{
+  font:inherit;
+}
+button{
+  border:1px solid #d5ddd8;
+  background:white;
+  color:#263b32;
+  border-radius:5px;
+  padding:7px 11px;
+  cursor:pointer;
+}
+button:hover{background:#e8f3ed}
+.primary{
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
+}
+.primary:hover{background:#064333;color:white}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.toolbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:white;
+  padding:9px;
+  border-bottom:1px solid #dce4df;
+  box-shadow:0 2px 7px #0000000b;
+}
+.tool-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:7px;
+}
+.tool-row:last-child{margin-bottom:0}
+.toolbar select,.toolbar input{
+  border:1px solid #d5ddd8;
+  border-radius:5px;
+  padding:6px;
+  max-width:145px;
+  background:white;
+}
+.toolbar button{min-width:34px}
+.workspace{
+  max-width:1100px;
+  margin:22px auto;
+  padding:0 12px;
+}
+.page{
+  background:white;
+  width:100%;
+  max-width:850px;
+  min-height:1050px;
+  margin:auto;
+  padding:70px 65px;
+  box-shadow:0 3px 18px #172b2015;
+  border:1px solid #e1e5e2;
+}
+#editor{
+  min-height:900px;
+  outline:none;
+  font-family:'Hind Siliguri',sans-serif;
+  font-size:16px;
+  line-height:1.8;
+  overflow-wrap:anywhere;
+}
+#editor:empty:before{
+  content:"এখানে লেখা শুরু করো...";
+  color:#a0aaa4;
+}
+#editor img{max-width:100%;height:auto}
+#editor table{
+  border-collapse:collapse;
+  width:100%;
+}
+#editor td,#editor th{
+  border:1px solid #555;
+  padding:7px;
+  min-width:45px;
+}
+.status{
+  text-align:center;
+  color:#64736b;
+  font-size:12px;
+  padding:12px;
+}
+input[type=color]{
+  width:35px;
+  height:34px;
+  padding:2px!important;
+}
+@media(max-width:600px){
+  header{padding:12px}
+  .brand{font-size:18px}
+  .workspace{margin:10px auto;padding:0}
+  .page{
+    padding:25px 17px;
+    min-height:750px;
+    border-left:0;
+    border-right:0;
+  }
+  #editor{min-height:650px;font-size:16px}
+  .toolbar{padding:7px}
+  .tool-row{gap:4px}
+  .toolbar button{padding:6px 8px}
+}
+@media print{
+  body{background:white}
+  header,.toolbar,.status{display:none!important}
+  .workspace{margin:0;padding:0}
+  .page{
+    width:100%;
+    max-width:none;
+    min-height:0;
+    padding:0;
+    border:0;
+    box-shadow:none;
+  }
+  #editor{min-height:0}
+  @page{size:A4;margin:20mm}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    Document Studio
+    <small>বাংলা • English • العربية</small>
+  </div>
+  <div class="actions">
+    <button onclick="newDocument()">নতুন</button>
+    <button onclick="saveDocument()">সংরক্ষণ</button>
+    <button class="primary" onclick="printDocument()">PDF / Print</button>
+  </div>
+</header>
+
+<div class="toolbar">
+
+  <div class="tool-row">
+    <select id="fontSelect" onchange="setFont(this.value)">
+      <option value="'Hind Siliguri'">Hind Siliguri</option>
+      <option value="'Noto Sans Bengali'">Noto Sans Bengali</option>
+      <option value="Arial">Arial</option>
+      <option value="'Times New Roman'">Times New Roman</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Amiri">Amiri</option>
+      <option value="'Noto Naskh Arabic'">Noto Naskh Arabic</option>
+    </select>
+
+    <select onchange="setSize(this.value)">
+      <option value="2">ছোট</option>
+      <option value="3" selected>সাধারণ</option>
+      <option value="4">বড়</option>
+      <option value="5">আরও বড়</option>
+      <option value="6">শিরোনাম</option>
+      <option value="7">বিশাল</option>
+    </select>
+
+    <select onchange="formatBlock(this.value)">
+      <option value="p">সাধারণ লেখা</option>
+      <option value="h1">Heading 1</option>
+      <option value="h2">Heading 2</option>
+      <option value="h3">Heading 3</option>
+      <option value="blockquote">উদ্ধৃতি</option>
+    </select>
+  </div>
+
+  <div class="tool-row">
+    <button onclick="cmd('bold')"><b>B</b></button>
+    <button onclick="cmd('italic')"><i>I</i></button>
+    <button onclick="cmd('underline')"><u>U</u></button>
+    <button onclick="cmd('strikeThrough')"><s>S</s></button>
+    <button onclick="cmd('removeFormat')">Format মুছুন</button>
+    <input type="color" title="লেখার রঙ" onchange="cmd('foreColor',this.value)">
+    <input type="color" title="লেখার ব্যাকগ্রাউন্ড" onchange="cmd('hiliteColor',this.value)">
+  </div>
+
+  <div class="tool-row">
+    <button onclick="cmd('justifyLeft')">বাম</button>
+    <button onclick="cmd('justifyCenter')">মাঝে</button>
+    <button onclick="cmd('justifyRight')">ডান</button>
+    <button onclick="cmd('justifyFull')">সমান</button>
+    <button onclick="cmd('insertUnorderedList')">• তালিকা</button>
+    <button onclick="cmd('insertOrderedList')">১. তালিকা</button>
+    <button onclick="cmd('indent')">→</button>
+    <button onclick="cmd('outdent')">←</button>
+  </div>
+
+  <div class="tool-row">
+    <button onclick="setDirection('rtl')">RTL আরবি</button>
+    <button onclick="setDirection('ltr')">LTR English</button>
+    <button onclick="insertTable()">টেবিল</button>
+    <button onclick="document.getElementById('imageInput').click()">ছবি</button>
+    <input id="imageInput" type="file" accept="image/*" hidden onchange="insertImage(this)">
+    <button onclick="cmd('undo')">↶ Undo</button>
+    <button onclick="cmd('redo')">↷ Redo</button>
+  </div>
+
+  <div class="tool-row">
+    <select onchange="loadTemplate(this.value)">
+      <option value="">টেমপ্লেট নির্বাচন</option>
+      <option value="question">প্রশ্নপত্র</option>
+      <option value="notice">নোটিশ</option>
+      <option value="letter">চিঠি</option>
+    </select>
+    <button onclick="downloadHTML()">HTML ডাউনলোড</button>
+    <button onclick="downloadTXT()">TXT ডাউনলোড</button>
+  </div>
+
+</div>
+
+<div class="workspace">
+  <div class="page">
+    <div id="editor" contenteditable="true" spellcheck="false"></div>
+  </div>
+</div>
+
+<div class="status" id="status">Document Studio • তোমার লেখা এই ডিভাইসে সংরক্ষণ করা যাবে</div>
+
+<script>
+const editor = document.getElementById('editor');
+
+function cmd(command,value=null){
+  editor.focus();
+  document.execCommand(command,false,value);
+}
+
+function setFont(font){
+  editor.focus();
+  document.execCommand('fontName',false,font);
+}
+
+function setSize(size){
+  editor.focus();
+  document.execCommand('fontSize',false,size);
+}
+
+function formatBlock(tag){
+  editor.focus();
+  document.execCommand('formatBlock',false,tag);
+}
+
+function setDirection(direction){
+  editor.focus();
+  editor.dir=direction;
+  editor.style.direction=direction;
+  editor.style.textAlign=direction==='rtl'?'right':'left';
+}
+
+function insertTable(){
+  const rows=parseInt(prompt('কতটি Row?','3'));
+  const cols=parseInt(prompt('কতটি Column?','3'));
+
+  if(!rows||!cols||rows>20||cols>15||rows<1||cols<1)return;
+
+  let html='<table><tbody>';
+  for(let r=0;r<rows;r++){
+    html+='<tr>';
+    for(let c=0;c<cols;c++){
+      html+='<td>&nbsp;</td>';
+    }
+    html+='</tr>';
+  }
+  html+='</tbody></table><p><br></p>';
+
+  editor.focus();
+  document.execCommand('insertHTML',false,html);
+}
+
+function insertImage(input){
+  const file=input.files[0];
+  if(!file)return;
+
+  if(!file.type.startsWith('image/')){
+    alert('শুধু ছবি নির্বাচন করো');
+    return;
+  }
+
+  const reader=new FileReader();
+  reader.onload=function(e){
+    editor.focus();
+    document.execCommand(
+      'insertHTML',
+      false,
+      '<img src="'+e.target.result+'" alt="ছবি">'
+    );
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+function saveDocument(){
+  try{
+    localStorage.setItem('documentStudioContent',editor.innerHTML);
+    localStorage.setItem('documentStudioDirection',editor.dir||'ltr');
+    document.getElementById('status').textContent='✓ এই ডিভাইসে ড্রাফট সংরক্ষিত হয়েছে';
+  }catch(e){
+    alert('সংরক্ষণ করা যায়নি। ডিভাইসের স্টোরেজ খালি করো।');
+  }
+}
+
+function loadDocument(){
+  const content=localStorage.getItem('documentStudioContent');
+  const direction=localStorage.getItem('documentStudioDirection');
+
+  if(content!==null)editor.innerHTML=content;
+  if(direction){
+    editor.dir=direction;
+    editor.style.direction=direction;
+  }
+}
+
+function newDocument(){
+  if(!confirm('নতুন ডকুমেন্ট শুরু করবে? আগে সংরক্ষণ করে নাও।'))return;
+  editor.innerHTML='';
+  editor.dir='ltr';
+  editor.style.direction='ltr';
+  editor.focus();
+}
+
+function printDocument(){
+  window.print();
+}
+
+function downloadFile(name,content,type){
+  const blob=new Blob([content],{type:type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadHTML(){
+  const html='<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><title>My Document</title></head><body>'+editor.innerHTML+'</body></html>';
+  downloadFile('my-document.html',html,'text/html;charset=utf-8');
+}
+
+function downloadTXT(){
+  downloadFile('my-document.txt',editor.innerText,'text/plain;charset=utf-8');
+}
+
+function loadTemplate(type){
+  if(!type)return;
+  if(editor.innerHTML.trim()&&!confirm('বর্তমান লেখা পরিবর্তন করে টেমপ্লেট বসাবে?'))return;
+
+  const templates={
+    question:`
+      <div style="text-align:center">
+        <h2>মাদ্রাসার নাম</h2>
+        <h3>বার্ষিক / অর্ধবার্ষিক পরীক্ষা</h3>
+        <p>শ্রেণি: ____________</p>
+        <p>বিষয়: ____________</p>
+        <p>সময়: ____________ &nbsp; পূর্ণমান: ____________</p>
+        <hr>
+      </div>
+      <h3>প্রশ্নপত্র</h3>
+      <p>১। ....................................................................</p>
+      <p>২। ....................................................................</p>
+      <p>৩। ....................................................................</p>
+      <p>৪। ....................................................................</p>
+    `,
+    notice:`
+      <div style="text-align:center">
+        <h2>মাদ্রাসার নাম</h2>
+        <h3>নোটিশ</h3>
+        <p>তারিখ: ______________</p>
+        <hr>
+      </div>
+      <p>সংশ্লিষ্ট সকলের অবগতির জন্য জানানো যাচ্ছে যে,</p>
+      <p>........................................................................</p>
+      <p>........................................................................</p>
+      <p style="text-align:right">কর্তৃপক্ষ</p>
+    `,
+    letter:`
+      <p>তারিখ: ______________</p>
+      <p>বরাবর,</p>
+      <p>........................................</p>
+      <p>বিষয়: ........................................</p>
+      <p>জনাব,</p>
+      <p>বিনীত নিবেদন এই যে, ........................................</p>
+      <p>অতএব, মহোদয়ের নিকট বিনীত আবেদন ........................................</p>
+      <p>বিনীত</p>
+      <p>নাম: ______________</p>
+    `
+  };
+
+  editor.innerHTML=templates[type]||'';
+}
+
+editor.addEventListener('input',()=>{
+  document.getElementById('status').textContent='পরিবর্তন হয়েছে • সংরক্ষণ করতে সংরক্ষণ বাটনে চাপ দাও';
+});
+
+loadDocument();
+</script>
+
+</body>
+</html>
